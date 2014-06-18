@@ -1,27 +1,6 @@
 set :application, "cap_test"
 set :repository,  "git@github.com:arktisklada/capistrano_test.git"
 
-# set :scm, :git # You can set :scm explicitly or Capistrano will make an intelligent guess based on known version control directory names
-# Or: `accurev`, `bzr`, `cvs`, `darcs`, `git`, `mercurial`, `perforce`, `subversion` or `none`
-
-# role :web, "app.ga-instructors.com"                        # Your HTTP server, Apache/etc
-# role :app, "app.ga-instructors.com"                        # This may be the same as your `Web` server
-# role :db,  "app.ga-instructors.com", :primary => true      # This is where Rails migrations will run
-
-# if you want to clean up old releases on each deploy uncomment this:
-
-# if you're still using the script/reaper helper you will need
-# these http://github.com/rails/irs_process_scripts
-
-# If you are using Passenger mod_rails uncomment this:
-# namespace :deploy do
-#   task :start do ; end
-#   task :stop do ; end
-#   task :restart, :roles => :app, :except => { :no_release => true } do
-#     run "#{try_sudo} touch #{File.join(current_path,'tmp','restart.txt')}"
-#   end
-# end
-
 
 set :deploy_to, "/var/www/cap_test"
 set :scm, :git
@@ -41,7 +20,7 @@ server "app.ga-instructors.com", :app, :web, :db, :primary => true
 namespace :deploy do
   desc "Symlink shared config files"
   task :symlink_config_files do
-      run "#{ try_sudo } ln -s #{ deploy_to }/shared/config/database.yml #{ current_path }/config/database.yml"
+      run "#{try_sudo} ln -s #{deploy_to}/shared/config/database.yml #{release_path}/config/database.yml"
   end
 
   desc "Run bundle install to ensure all gem requirements are met"
@@ -49,15 +28,26 @@ namespace :deploy do
     run "cd #{release_path} && RAILS_ENV=#{fetch(:rails_env)} bundle install  --without development test --quiet "
     # run "cd #{current_path} && bundle install  --without=test --no-update-sources"
   end
+
+
+  task :start do
+    run "cd #{deploy_to}/current; bundle exec thin start -C config/thin.yml"
+  end
+
+  desc "Stop the Thin processes"
+  task :stop do
+    run "cd #{deploy_to}/current; bundle exec thin stop -C config/thin.yml"
+  end
+
+  desc "Restart the Thin processes"
+  task :restart do
+    run "cd #{deploy_to}/current; bundle exec thin restart -C config/thin.yml"
+  end
 end
 
 
 before "deploy:assets:precompile", "deploy:symlink_config_files"
-
-# after "deploy", "deploy:symlink_config_files"
-after "deploy:symlink_config_files", "deploy:bundle"
-# after "deploy:bundle", "deploy:assets:clean"
-# after "deploy:assets:clean", "deploy:assets:precompile"
-after "deploy:bundle", "deploy:migrate"
-after "deploy:assets:precompile", "deploy:restart"
+before "deploy:migrate", "deploy:bundle"
+before "deploy:restart", "deploy:migrate"
 after "deploy:restart", "deploy:cleanup"
+after :finished, 'deploy:startup'
