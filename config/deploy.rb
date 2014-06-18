@@ -37,3 +37,14 @@ set :ssh_options, { :forward_agent => true, :port => 22 }
 set :keep_releases, 5
 
 server "app.ga-instructors.com", :app, :web, :db, :primary => true
+
+
+desc "Symlink shared config files"
+task :symlink_config_files do
+    run "#{ try_sudo } ln -s #{ deploy_to }/shared/config/database.yml #{ current_path }/config/database.yml"
+end
+
+
+after "deploy", "deploy:symlink_config_files"
+after "deploy", "deploy:restart"
+after "deploy", "deploy:cleanup"
