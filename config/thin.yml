@@ -1,6 +1,6 @@
-user: nginx
-group: nginx
-pid: tmp/pids/thin.pid
+pid: /var/www/cap_test/shared/tmp/pids/thin.pid
+address: 0.0.0.0
+port: 3000
 timeout: 30
 wait: 30
 log: log/thin.log
@@ -9,9 +9,9 @@ require: []
 environment: production
 max_persistent_conns: 512
 servers: 1
-threaded: true
-no-epoll: true
+# threaded: true
+# no-epoll: true
 daemonize: true
-socket: tmp/sockets/thin.sock
+socket: /var/www/cap_test/shared/tmp/sockets/thin.sock
 chdir: /var/www/cap_test/current
 tag: cap_test

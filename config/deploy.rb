@@ -30,18 +30,19 @@ namespace :deploy do
   end
 
 
+  desc "Start the Thin processes"
   task :start do
-    run "cd #{deploy_to}/current; bundle exec thin start -C config/thin.yml"
+    run "cd #{deploy_to}/current && #{try_sudo} bundle exec thin start -C config/thin.yml -D"
   end
 
   desc "Stop the Thin processes"
   task :stop do
-    run "cd #{deploy_to}/current; bundle exec thin stop -C config/thin.yml"
+    run "cd #{deploy_to}/current && #{try_sudo} bundle exec thin stop -C config/thin.yml"
   end
 
   desc "Restart the Thin processes"
   task :restart do
-    run "cd #{deploy_to}/current; bundle exec thin restart -C config/thin.yml"
+    run "cd #{deploy_to}/current && #{try_sudo} bundle exec thin restart -C config/thin.yml -D"
   end
 end
 
@@ -50,4 +51,4 @@ before "deploy:assets:precompile", "deploy:symlink_config_files"
 before "deploy:migrate", "deploy:bundle"
 before "deploy:restart", "deploy:migrate"
 after "deploy:restart", "deploy:cleanup"
-after :finished, 'deploy:restart'
+after :finished, 'deploy:start'
