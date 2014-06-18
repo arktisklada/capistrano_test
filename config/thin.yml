@@ -1,9 +1,9 @@
-pid: /var/www/cap_test/shared/tmp/pids/thin.pid
+pid: /var/www/cap_test/shared/pids/thin.pid
 address: 0.0.0.0
 port: 3000
 timeout: 30
 wait: 30
-log: log/thin.log
+log: /var/www/cap_test/shared/log/thin.log
 max_conns: 1024
 require: []
 environment: production
@@ -12,6 +12,6 @@ servers: 1
 # threaded: true
 # no-epoll: true
 daemonize: true
-socket: /var/www/cap_test/shared/tmp/sockets/thin.sock
+socket: /var/www/cap_test/shared/sockets/thin.sock
 chdir: /var/www/cap_test/current
 tag: cap_test
