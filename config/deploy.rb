@@ -52,10 +52,12 @@ namespace :deploy do
 end
 
 
+before "deploy:assets:precompile", "deploy:symlink_config_files"
 
-after "deploy", "deploy:symlink_config_files"
+# after "deploy", "deploy:symlink_config_files"
 after "deploy:symlink_config_files", "deploy:bundle"
+# after "deploy:bundle", "deploy:assets:clean"
+# after "deploy:assets:clean", "deploy:assets:precompile"
 after "deploy:bundle", "deploy:migrate"
-after "deploy:migrate", "deploy:assets:precompile"
-after "deploy:assets:compile", "deploy:restart"
+after "deploy:assets:precompile", "deploy:restart"
 after "deploy:restart", "deploy:cleanup"
