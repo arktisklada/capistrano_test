@@ -50,4 +50,4 @@ before "deploy:assets:precompile", "deploy:symlink_config_files"
 before "deploy:migrate", "deploy:bundle"
 before "deploy:restart", "deploy:migrate"
 after "deploy:restart", "deploy:cleanup"
-after :finished, 'deploy:startup'
+after :finished, 'deploy:restart'
