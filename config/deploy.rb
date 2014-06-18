@@ -9,7 +9,6 @@ set :repository,  "git@github.com:arktisklada/capistrano_test.git"
 # role :db,  "app.ga-instructors.com", :primary => true      # This is where Rails migrations will run
 
 # if you want to clean up old releases on each deploy uncomment this:
-# after "deploy:restart", "deploy:cleanup"
 
 # if you're still using the script/reaper helper you will need
 # these http://github.com/rails/irs_process_scripts
@@ -44,10 +43,20 @@ namespace :deploy do
   task :symlink_config_files do
       run "#{ try_sudo } ln -s #{ deploy_to }/shared/config/database.yml #{ current_path }/config/database.yml"
   end
+
+  desc "Run bundle install to ensure all gem requirements are met"
+  task :bundle do
+    run "cd #{release_path} && RAILS_ENV=#{fetch(:rails_env)} bundle install  --without development test --quiet "
+    # run "cd #{current_path} && bundle install  --without=test --no-update-sources"
+  end
 end
 
 
-after "deploy", "deploy:symlink_config_files"
-after "deploy", "deploy:migrate"
-after "deploy", "deploy:restart"
-after "deploy", "deploy:cleanup"
+before "deploy:symlink_config_files", "deploy:bundle"
+before "deploy:assets:precompile", "deploy:symlink_config_files"
+
+# after "deploy", "deploy:symlink_config_files"
+after "deploy:symlink_config_files", "deploy:migrate"
+# after "deploy:migrate", "deploy:precompile_assets"
+after "deploy:migrate", "deploy:restart"
+after "deploy:restart", "deploy:cleanup"
