@@ -32,17 +32,17 @@ namespace :deploy do
 
   desc "Start the Thin processes"
   task :start do
-    run "cd #{deploy_to}/current && #{try_sudo} bundle exec thin start -C config/thin.yml -D"
+    run "cd #{deploy_to}/current && #{try_sudo} RAILS_ENV=#{fetch(:rails_env)} bundle exec thin start -C config/thin.yml -D"
   end
 
   desc "Stop the Thin processes"
   task :stop do
-    run "cd #{deploy_to}/current && #{try_sudo} bundle exec thin stop -C config/thin.yml"
+    run "cd #{deploy_to}/current && #{try_sudo} RAILS_ENV=#{fetch(:rails_env)} bundle exec thin stop -C config/thin.yml"
   end
 
   desc "Restart the Thin processes"
   task :restart do
-    run "cd #{deploy_to}/current && #{try_sudo} bundle exec thin restart -C config/thin.yml -D"
+    run "cd #{deploy_to}/current && #{try_sudo} RAILS_ENV=#{fetch(:rails_env)} bundle exec thin restart -C config/thin.yml -D"
   end
 end
 
